@@ -43,7 +43,9 @@
      "esri/popup/content/ExpressionContent",
      "esri/popup/content/TextContent",
      "esri/rest/query/support/AttachmentInfo",
-     "esri/widgets/Locate"
+     "esri/widgets/Locate",
+     "esri/layers/ImageryLayer",
+     "esri/widgets/Search"
      ],(
       Map,
       MapView,
@@ -55,7 +57,9 @@
       ExpressionContent,
       TextContent,
       AttachmentInfo,
-      Locate
+      Locate,
+      ImageryLayer,
+      Search
       )=>{
       //Buat Simbologi Persil Sebontang
       const defaultSym1 = {
@@ -406,10 +410,16 @@
         url:"https://raw.githubusercontent.com/DutyKendartiwastra/WEBGISNBT_APIAPI/main/Join1.geojson",
         popupTemplate:popup_geotag
       });
+      //DRONE
+      const DRONE = new ImageryLayer({
+          url: "https://raw.githubcontent.com/DutyKendartiwastra/DutyKendartiwastra.github.io/main/test6.mbtiles",
+          format: "mbtiles" // server exports in either jpg or png format
+        });
       // Insert Basemap
         const map = new Map({
         basemap:"streets-relief-vector"
       });
+      map.add(DRONE);
       map.add(Zona2023);
       map.add(persil_sebontang);
       map.add(Sample023);
@@ -453,7 +463,25 @@
       const locateBtn = new Locate({
           view: View
         });
+      //SEARCH
+        const searchWidget = new Search({
+          view: View,
+          allPlaceholder: "Masukkan Nomor NIB",
+          includeDefaultSources: false,
+          sources: [
+            {
+              layer: geotag,
+              searchFields: ["NIB"],
+              displayField: "NIB",
+              exactMatch: false,
+              outFields: ["NIB"],
+              name: "NIB",
+              zoomScale: 300,
+              placeholder: "Nomor NIB, Contoh: 04035"
+            }]
+        });
       //Jajaran widget
+        View.ui.add(searchWidget, {position: "top-right"});
         View.ui.add(locateBtn, {position: "top-left"});
         View.ui.add(toggle, "bottom-left");
       }
