@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peta Zona Nilai Tanah 2023</title>
+    <title>Survei Nilai Bidang Tanah 2023</title>
 </head>
 <body>
     <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css"/>
@@ -14,6 +14,22 @@
     <style>
      html,
      body,
+     #viewDiv_Vektor {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+     #layerToggle {
+        bottom: -10%;
+        left: 55px;
+        position:absolute;
+        z-index: 99;
+        background-color: white;
+        border-radius: 8px;
+        padding: 10px;
+        opacity: 0.75;
+      }
      #viewDiv {
         padding: 0;
         margin: 0;
@@ -27,6 +43,15 @@
         left: 60px;
         height: 13%;
         background: rgba(240, 248, 254, 0.5);
+        width: 280px;
+      }
+      #sidebar2 {
+        z-index: 99;
+        position: absolute;
+        top: 550px;
+        left: 0px;
+        height: 13%;
+        background: rgba(240, 248, 254, 0.1);
         width: 400px;
       }
     </style>
@@ -45,7 +70,8 @@
      "esri/rest/query/support/AttachmentInfo",
      "esri/widgets/Locate",
      "esri/layers/ImageryLayer",
-     "esri/widgets/Search"
+     "esri/widgets/Search",
+     "esri/layers/ImageryTileLayer"
      ],(
       Map,
       MapView,
@@ -59,8 +85,23 @@
       AttachmentInfo,
       Locate,
       ImageryLayer,
-      Search
+      Search,
+      ImageryTileLayer
       )=>{
+      //Buat Simbologi Batas Admin Api-api
+      const Batas1 = {
+          type: "simple-fill",
+          color:[232, 217, 40, 0],
+          outline: {
+            color: [183, 4, 4, 1],
+            width: "3px",
+            style: "solid"
+          }
+        };
+      const renderer_adminApi2 = {
+          type: "simple",
+          title:"Batas Bidang Tanah",
+          symbol: Batas1}
       //Buat Simbologi Persil Sebontang
       const defaultSym1 = {
           type: "simple-fill",
@@ -377,16 +418,32 @@
       };
       //Pop Up Geotag Photo
       const popup_geotag = {
-        tittle:"Keterangan",
+        title :"Nomor Entry {NIB}",
         content:
-         [{type : "media",
+         [
+        {type: "fields",
+          fieldInfos:[
+          {fieldName: "LUASPETA",
+            label: "Luas (m2)"}]},
+        {type : "media",
          mediaInfos:[{
-          title:"Foto Lokasi",
+          title:"Foto 1",
           value:{
             sourceURL:"{Join1_Foto1}"
-          }
-         }]
-        }]
+          }}]},
+        {type : "media",
+         mediaInfos:[{
+          title:"Foto 2",
+          value:{
+            sourceURL:"{Join1_Foto2}"
+          }}]},
+        {type : "media",
+         mediaInfos:[{
+          title:"Foto 3",
+          value:{
+            sourceURL:"{Join1_Foto3}"
+          }}]},
+        ],
       }
       //Insert SHP ZONA 2023
       const Zona2023=new GeoJSONLayer({
@@ -405,21 +462,31 @@
         url:"https://raw.githubusercontent.com/DutyKendartiwastra/ZNT2023/main/Persil%20Sebontang%20Update.geojson",
         renderer:renderer_persilsebontang
       });
+      // Setting Toggle Widget Visible Zona
+      const streetsLayerToggle1 = document.getElementById("LayerZona2023");
+      streetsLayerToggle1.addEventListener("change", () => {
+          Zona2023.visible = streetsLayerToggle1.checked;
+      });
+      // Setting Toggle Widget Visible Sample
+      const streetsLayerToggle2 = document.getElementById("LayerSample2023");
+      streetsLayerToggle2.addEventListener("change", () => {
+          Sample023.visible = streetsLayerToggle2.checked;
+      });
+      //Batas Admin Api2
+      const BatasAdmin_Api2= new GeoJSONLayer({
+        url:"https://raw.githubusercontent.com/DutyKendartiwastra/WEBGISNBT_APIAPI/main/Batas_Kelurahan_Api2.geojson",
+        renderer:renderer_adminApi2
+      });
       //Persil geotag
       const geotag= new GeoJSONLayer({
         url:"https://raw.githubusercontent.com/DutyKendartiwastra/WEBGISNBT_APIAPI/main/Join1.geojson",
         popupTemplate:popup_geotag
       });
-      //DRONE
-      const DRONE = new ImageryLayer({
-          url: "https://raw.githubcontent.com/DutyKendartiwastra/DutyKendartiwastra.github.io/main/test6.mbtiles",
-          format: "mbtiles" // server exports in either jpg or png format
-        });
       // Insert Basemap
         const map = new Map({
         basemap:"streets-relief-vector"
       });
-      map.add(DRONE);
+      map.add(BatasAdmin_Api2);
       map.add(Zona2023);
       map.add(persil_sebontang);
       map.add(Sample023);
@@ -428,8 +495,8 @@
       const View = new MapView({
         container: "viewDiv",
         map: map,
-        zoom:15,
-        center:[117.487325,0.128217]
+        zoom:16,
+        center:[117.489066,0.130173]
       });
       // Legend Muka Peta 1
       const legend = new Expand({
@@ -483,7 +550,7 @@
       //Jajaran widget
         View.ui.add(searchWidget, {position: "top-right"});
         View.ui.add(locateBtn, {position: "top-left"});
-        View.ui.add(toggle, "bottom-left");
+        View.ui.add(toggle, "bottom-right");
       }
      )
     </script>
@@ -494,10 +561,16 @@
       <div id="sidebar" class="esri-widget">
         <div id="text">
           <center> <img src="https://raw.githubusercontent.com/DutyKendartiwastra/Belajar1/main/Foto/LogoBPN.png" alt="logo" width="60" height="60" style="float:left">
-          <h1>Kelurahan Api-api</h1>
-          <p>Database Penilaian Tanah</p>
+          <h1><font size="3"> Kelurahan Api-api</font></h1>
+          <p><font size="3">Database Penilaian Tanah</font></p>
         </div>
       </div>
-  </body>
+    </body>
+    <div id="sidebar2" class="esri-widget">
+      <span id="layerToggle" class="esri-widget">
+        <input type="checkbox" id="LayerZona2023" /> Zona2023
+        <input type="checkbox" id="LayerSample2023" /> Sample2023
+      </span>
+    </div>
 </body>
 </html>
