@@ -42,7 +42,7 @@
         top: 10px;
         left: 60px;
         height: 13%;
-        background: rgba(240, 248, 254, 0.5);
+        background: rgba(0, 0, 0, 0.3);
         width: 280px;
       }
       #sidebar2 {
@@ -51,7 +51,7 @@
         top: 550px;
         left: 0px;
         height: 13%;
-        background: rgba(240, 248, 254, 0.1);
+        background: rgba(240, 248, 254, 0);
         width: 400px;
       }
     </style>
@@ -88,14 +88,28 @@
       Search,
       ImageryTileLayer
       )=>{
-      //Buat Simbologi Batas Admin Api-api
-      const Batas1 = {
+      //Buat Simbologi Batas RT
+      const BatasRT = {
           type: "simple-fill",
           color:[232, 217, 40, 0],
           outline: {
+            color: [255, 255, 255, 0.5],
+            width: "0.5px",
+            style: "solid"
+          }
+        };
+      const renderer_Batas_RT = {
+          type: "simple",
+          title:"Batas RT",
+          symbol: BatasRT}
+      //Buat Simbologi Batas Admin Api-api
+      const Batas1 = {
+          type: "simple-fill",
+          color:[34, 40, 49,0],
+          outline: {
             color: [183, 4, 4, 1],
             width: "3px",
-            style: "solid"
+            style: "short-dash-dot-dot"
           }
         };
       const renderer_adminApi2 = {
@@ -107,7 +121,7 @@
           type: "simple-fill",
           color:[232, 217, 40, 0],
           outline: {
-            color: [170, 170, 170, 0.5],
+            color: [79, 69, 87, 0.5],
             width: "0.5px",
             style: "solid"
           }
@@ -147,6 +161,68 @@
           type: "simple",
           title:"Batas Administrasi",
           symbol: defaultSym2}
+      //Simbologi Pemanfaatan Tanah
+      const renderer_pemanfaatan = {
+        type: "unique-value",
+        legendOptions: {
+        title: "Pemanfaatan Tanah"},
+        field: "Join_Pemanfaatan1",
+        uniqueValueInfos: [
+          {value: "Rumah Tinggal",
+          symbol: {
+              type: "simple-fill",
+              color: "#9E4784",
+              outline:{
+                color: [170, 170, 170, 1],
+                width: "0.3px",
+                style: "solid"}
+          }},
+          {value: "Tanah Kosong",
+          symbol: {
+              type: "simple-fill",
+              color: "#539165",
+              outline:{
+                color: [170, 170, 170, 1],
+                width: "0.3px",
+                style: "solid"}
+          }},
+          {value: "Tempat Usaha",
+          symbol: {
+              type: "simple-fill",
+              color: "#FFD95A",
+              outline:{
+                color: [170, 170, 170, 1],
+                width: "0.3px",
+                style: "solid"}
+          }},
+          {value: "Fasum/Fasos",
+          symbol: {
+              type: "simple-fill",
+              color: "#E06469",
+              outline:{
+                color: [170, 170, 170, 1],
+                width: "0.3px",
+                style: "solid"}
+          }},
+          {value: "Perkantoran",
+          symbol: {
+              type: "simple-fill",
+              color: "#D7C0AE",
+              outline:{
+                color: [170, 170, 170, 1],
+                width: "0.3px",
+                style: "solid"}
+          }},
+          {value: "-",
+          symbol: {
+              type: "simple-fill",
+              color: "#F8F6F4",
+              outline:{
+                color: [170, 170, 170, 1],
+                width: "0.3px",
+                style: "solid"}
+          }},
+        ]};
       //Simbologi Sample 2023
       let renderer_Sample2023 = {
         type: "simple",
@@ -418,30 +494,42 @@
       };
       //Pop Up Geotag Photo
       const popup_geotag = {
-        title :"Nomor Entry {NIB}",
+        title :"Nomor Entri {NIB}",
         content:
          [
         {type: "fields",
           fieldInfos:[
+          {fieldName: "Join_RT",
+            label: "Wilayah RT"},
+          {fieldName: "Join_Jenis",
+            label: "Jenis"},
+          {fieldName: "Join_Pemanfaatan1",
+            label: "Pemanfaatan 1"},
+          {fieldName: "Join_Pemanfaatan2",
+            label: "Pemanfaatan 2"},
+          {fieldName: "Join_Pemanfaatan3",
+            label: "Pemanfaatan 3"},
           {fieldName: "LUASPETA",
-            label: "Luas (m2)"}]},
+            label: "Luas (m2)"},
+          {fieldName: "Pemodelan",
+            label: "Alas Hak"}]},
         {type : "media",
          mediaInfos:[{
           title:"Foto 1",
           value:{
-            sourceURL:"{Join4_Foto1}"
+            sourceURL:"{Join_Foto1}"
           }}]},
         {type : "media",
          mediaInfos:[{
           title:"Foto 2",
           value:{
-            sourceURL:"{Join4_Foto2}"
+            sourceURL:"{Join_Foto2}"
           }}]},
         {type : "media",
          mediaInfos:[{
           title:"Foto 3",
           value:{
-            sourceURL:"{Join4_Foto3}"
+            sourceURL:"{Join_Foto3}"
           }}]},
         ],
       }
@@ -477,27 +565,34 @@
         url:"https://raw.githubusercontent.com/DutyKendartiwastra/WEBGISNBT_APIAPI/main/Batas_Kelurahan_Api2.geojson",
         renderer:renderer_adminApi2
       });
+      //Batas RT
+      const Batas_RT= new GeoJSONLayer({
+        url:"https://raw.githubusercontent.com/DutyKendartiwastra/WEBGISNBT_APIAPI/main/Wilayah_RT.geojson",
+        renderer:renderer_Batas_RT
+      });
       //Persil geotag
       const geotag= new GeoJSONLayer({
-        url:"https://raw.githubusercontent.com/DutyKendartiwastra/WEBGISNBT_APIAPI/main/Join4.geojson",
-        popupTemplate:popup_geotag
+        url:"https://raw.githubusercontent.com/DutyKendartiwastra/WEBGISNBT_APIAPI/main/Join.geojson",
+        popupTemplate:popup_geotag,
+        renderer:renderer_pemanfaatan
       });
       // Insert Basemap
         const map = new Map({
-        basemap:"streets-relief-vector"
+        basemap:"dark-gray-vector"
       });
-      map.add(BatasAdmin_Api2);
-      map.add(Zona2023);
-      map.add(persil_sebontang);
-      map.add(Sample023);
-      map.add(geotag);
       // Menampilkan Map ke Bodi HTML
       const View = new MapView({
         container: "viewDiv",
         map: map,
-        zoom:16,
+        zoom:15,
         center:[117.489066,0.130173]
       });
+      map.add(BatasAdmin_Api2);
+      map.add(Zona2023);
+      map.add(geotag);
+      map.add(Batas_RT);
+      map.add(persil_sebontang);
+      map.add(Sample023);
       // Legend Muka Peta 1
       const legend = new Expand({
           content: new Legend({
@@ -533,7 +628,7 @@
       //SEARCH
         const searchWidget = new Search({
           view: View,
-          allPlaceholder: "Masukkan Nomor NIB",
+          allPlaceholder: "Cari Berdasarkan",
           includeDefaultSources: false,
           sources: [
             {
@@ -544,7 +639,17 @@
               outFields: ["NIB"],
               name: "NIB",
               zoomScale: 300,
-              placeholder: "Nomor NIB, Contoh: 04035"
+              placeholder: "Contoh: 04035"
+            },
+            {
+              layer: Batas_RT,
+              searchFields: ["RT"],
+              displayField: "RT",
+              exactMatch: false,
+              outFields: ["RT"],
+              name: "RT",
+              zoomScale: 300,
+              placeholder: "Contoh: 25"
             }]
         });
       //Jajaran widget
@@ -561,8 +666,8 @@
       <div id="sidebar" class="esri-widget">
         <div id="text">
           <center> <img src="https://raw.githubusercontent.com/DutyKendartiwastra/Belajar1/main/Foto/LogoBPN.png" alt="logo" width="60" height="60" style="float:left">
-          <h1><font size="3"> Kelurahan Api-api</font></h1>
-          <p><font size="3">Database Penilaian Tanah</font></p>
+            <p><font color="white"<font size="3">Database Penilaian Tanah</font></p></font>
+            <h1><font color="white"<font size="3"> Kelurahan Api-api</font></h1></font>
         </div>
       </div>
     </body>
