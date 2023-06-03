@@ -41,9 +41,9 @@
         position: absolute;
         top: 10px;
         left: 60px;
-        height: 13%;
+        height: 6%;
         background: rgba(0, 0, 0, 0.3);
-        width: 280px;
+        width: 425px;
       }
       #sidebar2 {
         z-index: 99;
@@ -71,7 +71,10 @@
      "esri/widgets/Locate",
      "esri/layers/ImageryLayer",
      "esri/widgets/Search",
-     "esri/layers/ImageryTileLayer"
+     "esri/layers/ImageryTileLayer",
+     "esri/widgets/Compass",
+     "esri/widgets/Swipe",
+     "esri/widgets/ScaleBar",
      ],(
       Map,
       MapView,
@@ -86,7 +89,10 @@
       Locate,
       ImageryLayer,
       Search,
-      ImageryTileLayer
+      ImageryTileLayer,
+      Compass,
+      Swipe,
+      ScaleBar
       )=>{
       //Buat Simbologi Batas RT
       const BatasRT = {
@@ -130,11 +136,25 @@
           type: "simple",
           title:"Batas Bidang Tanah",
           symbol: defaultSym1}
+      //Buat Simbologi Persil Kuning
+      const persil_kuning = {
+          type: "simple-fill",
+          color:[232, 217, 40, 0],
+          outline: {
+            color: [255, 211, 105,1],
+            width: "1.5px",
+            style: "solid"
+          }
+        };
+      const renderer_persil_T = {
+          type: "simple",
+          title:"Batas Bidang Tanah Kuning",
+          symbol: persil_kuning}
       //Membuat Label Class Zona
       const labelClass = {
         symbol: {
           type: "text",
-          color: "Black",
+          color: "White",
           font: {
             family: "Avenir Next LT Pro Regular",
             size: 12,
@@ -153,9 +173,9 @@
           type: "simple-fill",
           color:[232, 217, 40, 0],
           outline: {
-            color: [77, 76, 75, 1],
+            color: [65, 100, 74, 0.5],
             width: "2px",
-            style: "short-dash-dot-dot"
+            style: "solid"
           }};
       const renderer3 = {
           type: "simple",
@@ -576,6 +596,11 @@
         popupTemplate:popup_geotag,
         renderer:renderer_pemanfaatan
       });
+      //Persil per 12 Mei
+      const persil_T= new GeoJSONLayer({
+        url:"https://raw.githubusercontent.com/DutyKendartiwastra/WEBGISNBT_APIAPI/main/Persil_Api2_Per12Mei.geojson",
+        renderer:renderer_persil_T
+      });
       // Insert Basemap
         const map = new Map({
         basemap:"dark-gray-vector"
@@ -587,11 +612,12 @@
         zoom:15,
         center:[117.489066,0.130173]
       });
+      map.add(persil_T);
       map.add(BatasAdmin_Api2);
-      map.add(Zona2023);
       map.add(geotag);
       map.add(Batas_RT);
       map.add(persil_sebontang);
+      map.add(Zona2023);
       map.add(Sample023);
       // Legend Muka Peta 1
       const legend = new Expand({
@@ -600,22 +626,13 @@
             style: "classic", // other styles include 'classic/classic'
             layerInfos: [
               {
-                layer: persil_sebontang,
-                title: "Bidang Tanah Terukur"
-              },
-              {
-                layer: Sample023,
-                title: "Sample Nilai Tanah"
-              },
-              {
-                layer: Zona2023,
-                title: "Zona Nilai Tanah 2023"
+                layer: geotag,
+                title: "Pemanfaatan Tanah"
               },
             ],
           view: View,
           expanded: false,
       })});
-      View.ui.add(legend, "bottom-right");
       // Gonta-ganti basemap
       const toggle = new BasemapToggle({
           view: View,
@@ -623,6 +640,22 @@
         });
       //Location Button
       const locateBtn = new Locate({
+          view: View
+        });
+      //North
+      const compassWidget = new Compass({
+          view: View
+        });
+      //Scale Bar
+      const scaleBar = new ScaleBar({
+          view: View,
+          unit: "dual" // The scale bar displays both metric and non-metric units.
+        });
+      //swipe
+      const swipe = new Swipe({
+          leadingLayers: [persil_T],
+          trailingLayers: [geotag],
+          position: 0, // set position of widget to 35%
           view: View
         });
       //SEARCH
@@ -648,7 +681,7 @@
               exactMatch: false,
               outFields: ["RT"],
               name: "RT",
-              zoomScale: 300,
+              zoomScale: 1500,
               placeholder: "Contoh: 25"
             }]
         });
@@ -656,6 +689,10 @@
         View.ui.add(searchWidget, {position: "top-right"});
         View.ui.add(locateBtn, {position: "top-left"});
         View.ui.add(toggle, "bottom-right");
+        View.ui.add(compassWidget, "top-left");
+        View.ui.add(swipe);
+        View.ui.add(scaleBar, {position: "bottom-right"});
+        View.ui.add(legend, "bottom-right");
       }
      )
     </script>
@@ -665,9 +702,8 @@
     <body>
       <div id="sidebar" class="esri-widget">
         <div id="text">
-          <center> <img src="https://raw.githubusercontent.com/DutyKendartiwastra/Belajar1/main/Foto/LogoBPN.png" alt="logo" width="60" height="60" style="float:left">
-            <p><font color="white"<font size="3">Database Penilaian Tanah</font></p></font>
-            <h1><font color="white"<font size="3"> Kelurahan Api-api</font></h1></font>
+            <img src="https://raw.githubusercontent.com/DutyKendartiwastra/Belajar1/main/Foto/LogoBPN.png" top=10px alt="logo" width="40" height="40">
+            <h1 style="font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; top: 0px;left:50px;position:absolute;color: azure;font-size:large;">Database Penilaian Tanah Kelurahan Api-api</h1>
         </div>
       </div>
     </body>
