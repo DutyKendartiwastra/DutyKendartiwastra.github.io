@@ -7,7 +7,7 @@
     <title>Survei Nilai Bidang Tanah 2023</title>
 </head>
 <body>
-    <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css"/>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/dark/main.css"/>
     <script src="https://js.arcgis.com/4.24/"></script>
     <script>src="https://code.jquery.com/jquery-3.6.1.min.js"</script>
     <!-- Setting Halaman Full Screen -->
@@ -75,6 +75,8 @@
      "esri/widgets/Compass",
      "esri/widgets/Swipe",
      "esri/widgets/ScaleBar",
+     "esri/widgets/LayerList",
+     "esri/layers/GroupLayer"
      ],(
       Map,
       MapView,
@@ -92,7 +94,9 @@
       ImageryTileLayer,
       Compass,
       Swipe,
-      ScaleBar
+      ScaleBar,
+      LayerList,
+      GroupLayer
       )=>{
       //Buat Simbologi Batas RT
       const BatasRT = {
@@ -557,7 +561,7 @@
       const Zona2023=new GeoJSONLayer({
         url:"https://raw.githubusercontent.com/DutyKendartiwastra/ZNT2023/main/Zona_lonlat_2023.geojson",
         labelingInfo:labelClass,
-        renderer:renderer3
+        renderer:renderer3,
       });
       //Insert SHP Sample 2023
       const Sample023=new GeoJSONLayer({
@@ -569,16 +573,6 @@
       const persil_sebontang= new GeoJSONLayer({
         url:"https://raw.githubusercontent.com/DutyKendartiwastra/ZNT2023/main/Persil%20Sebontang%20Update.geojson",
         renderer:renderer_persilsebontang
-      });
-      // Setting Toggle Widget Visible Zona
-      const streetsLayerToggle1 = document.getElementById("LayerZona2023");
-      streetsLayerToggle1.addEventListener("change", () => {
-          Zona2023.visible = streetsLayerToggle1.checked;
-      });
-      // Setting Toggle Widget Visible Sample
-      const streetsLayerToggle2 = document.getElementById("LayerSample2023");
-      streetsLayerToggle2.addEventListener("change", () => {
-          Sample023.visible = streetsLayerToggle2.checked;
       });
       //Batas Admin Api2
       const BatasAdmin_Api2= new GeoJSONLayer({
@@ -601,9 +595,13 @@
         url:"https://raw.githubusercontent.com/DutyKendartiwastra/WEBGISNBT_APIAPI/main/Persil_Api2_Per12Mei.geojson",
         renderer:renderer_persil_T
       });
+      //DRONE
+      const DRONE = new ImageryTileLayer({
+          url: "https://dronebontang.s3.eu-north-1.amazonaws.com/test6.mbtiles",
+        });
       // Insert Basemap
         const map = new Map({
-        basemap:"dark-gray-vector"
+        basemap:"dark-gray-vector",
       });
       // Menampilkan Map ke Bodi HTML
       const View = new MapView({
@@ -612,13 +610,21 @@
         zoom:15,
         center:[117.489066,0.130173]
       });
+      map.add(DRONE);
+      map.add(persil_sebontang);
       map.add(persil_T);
       map.add(BatasAdmin_Api2);
       map.add(geotag);
       map.add(Batas_RT);
-      map.add(persil_sebontang);
-      map.add(Zona2023);
-      map.add(Sample023);
+      //map.add(Zona2023);
+      //map.add(Sample023);
+      
+      //LayerList
+      //View.when(() => {
+      //    const layerList = new LayerList({
+      //      view:View
+      //    })});
+
       // Legend Muka Peta 1
       const legend = new Expand({
           content: new Legend({
@@ -693,6 +699,7 @@
         View.ui.add(swipe);
         View.ui.add(scaleBar, {position: "bottom-right"});
         View.ui.add(legend, "bottom-right");
+        View.ui.add(layerList, "bottom-left");
       }
      )
     </script>
@@ -707,11 +714,5 @@
         </div>
       </div>
     </body>
-    <div id="sidebar2" class="esri-widget">
-      <span id="layerToggle" class="esri-widget">
-        <input type="checkbox" id="LayerZona2023" /> Zona2023
-        <input type="checkbox" id="LayerSample2023" /> Sample2023
-      </span>
-    </div>
 </body>
 </html>
